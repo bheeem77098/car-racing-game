@@ -3,10 +3,10 @@ const ctx = canvas.getContext("2d");
 
 // Images
 const carImage = new Image();
-carImage.src = "assets/car.png";
+carImage.src = "car.png";
 
 const enemyImage = new Image();
-enemyImage.src = "assets/enemy.png";
+enemyImage.src = "enemy.png";
 
 // Check images
 carImage.onload = function () {

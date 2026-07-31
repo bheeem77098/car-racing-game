@@ -6,9 +6,16 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = 800;
-canvas.height = 600;
+function resizeCanvas(){
 
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+}
+
+resizeCanvas();
+
+window.addEventListener("resize", resizeCanvas);
 
 // ======================================
 // IMAGES
@@ -50,8 +57,17 @@ let gameOver = false;
 
 const player = {
 
-    x:365,
-    y:450,
+const player = {
+
+    x: canvas.width / 2 - 35,
+    y: canvas.height - 150,
+
+    width:70,
+    height:120,
+
+    speed:6
+
+};
 
     width:70,
     height:120,
@@ -434,27 +450,37 @@ function drawBackground(){
 
     // Road
 
-    ctx.fillStyle="#444";
+    // Road
 
-    ctx.fillRect(
-        100,
-        0,
-        600,
-        canvas.height
-    );
+ctx.fillStyle="#444";
 
+ctx.fillRect(
+    canvas.width * 0.125,
+    0,
+    canvas.width * 0.75,
+    canvas.height
+);
 
 
     // Road border
 
-    ctx.fillStyle="yellow";
+   // Road border
 
-    ctx.fillRect(100,0,5,canvas.height);
+ctx.fillStyle="yellow";
 
-    ctx.fillRect(695,0,5,canvas.height);
+ctx.fillRect(
+    canvas.width * 0.125,
+    0,
+    5,
+    canvas.height
+);
 
-
-}
+ctx.fillRect(
+    canvas.width * 0.875 - 5,
+    0,
+    5,
+    canvas.height
+);
 
 
 
@@ -817,9 +843,8 @@ function restartGame(){
 
 
 
-    player.x = 365;
-
-    player.y = 450;
+    player.x = canvas.width / 2 - 35;
+player.y = canvas.height - 150;
 
 
 

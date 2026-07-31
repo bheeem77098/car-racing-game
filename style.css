@@ -1,32 +1,88 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-<title>2D Car Racing Game</title>
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: black;
+}
 
-<link rel="stylesheet" href="style.css">
-
-</head>
-
-<body>
-
-<canvas id="gameCanvas" width="800" height="600"></canvas>
-
-
-<div id="mobileControls">
-
-    <button id="leftBtn">⬅️</button>
-
-    <button id="brakeBtn">⏸️</button>
-
-    <button id="rightBtn">➡️</button>
-
-</div>
+/* Game screen */
+#gameCanvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+}
 
 
-<script src="game.js"></script>
+/* Mobile control buttons container */
+#mobileControls {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
 
-</body>
-</html>
+    display: flex;
+    gap: 20px;
+
+    z-index: 10;
+}
+
+
+/* Buttons */
+#mobileControls button {
+
+    width: 75px;
+    height: 75px;
+
+    font-size: 35px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255,255,255,0.8);
+
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* Mobile screen adjustment */
+@media(max-width:600px){
+
+    #mobileControls {
+        bottom: 20px;
+        gap: 15px;
+    }
+
+
+    #mobileControls button {
+
+        width: 85px;
+        height: 85px;
+
+        font-size: 40px;
+    }
+
+}
+
+
+/* Desktop */
+@media(min-width:601px){
+
+    #mobileControls button {
+
+        width: 65px;
+        height: 65px;
+
+        font-size: 30px;
+    }
+
+}

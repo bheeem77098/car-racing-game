@@ -1,210 +1,970 @@
+// ======================================
+// CAR RACING GAME - CLEAN VERSION PART 1
+// ======================================
+
+// Canvas
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Images
-const carImage = new Image();
-carImage.src = "car.png";
+canvas.width = 800;
+canvas.height = 600;
 
-const enemyImage = new Image();
-enemyImage.src = "enemy.png";
 
-// Check images
-carImage.onload = function () {
-    console.log("Player car loaded");
-};
+// ======================================
+// IMAGES
+// ======================================
 
-carImage.onerror = function () {
-    console.log("Player car image not found");
-};
+const playerImg = new Image();
+playerImg.src = "assets/car.png";
 
-enemyImage.onload = function () {
-    console.log("Enemy car loaded");
-};
+const enemyImg = new Image();
+enemyImg.src = "assets/enemy.png";
 
-enemyImage.onerror = function () {
-    console.log("Enemy car image not found");
-};
+const treeImg = new Image();
+treeImg.src = "assets/tree.png";
 
-// Player car
-const player = {
-    x: 360,
-    y: 450,
-    width: 70,
-    height: 120,
-    speed: 6
-};
+const coinImg = new Image();
+coinImg.src = "assets/coin.png";
 
-// Enemy cars
-let enemies = [
-    {
-        x: 200,
-        y: -200,
-        width: 70,
-        height: 120,
-        speed: 5
-    },
-    {
-        x: 520,
-        y: -500,
-        width: 70,
-        height: 120,
-        speed: 6
-    }
-];
+const grassImg = new Image();
+grassImg.src = "assets/grass.png";
+
+
+// ======================================
+// GAME VARIABLES
+// ======================================
 
 let score = 0;
-let roadLineY = 0;
-let gameRunning = false;
+let coinsCollected = 0;
+let lives = 3;
 
-// Keyboard
-let keys = {};
+let roadSpeed = 6;
+let roadOffset = 0;
 
-document.addEventListener("keydown", function (e) {
+let gameOver = false;
+
+
+// ======================================
+// PLAYER CAR
+// ======================================
+
+const player = {
+
+    x:365,
+    y:450,
+
+    width:70,
+    height:120,
+
+    speed:6
+
+};
+
+
+// ======================================
+// KEYBOARD CONTROL
+// ======================================
+
+const keys = {};
+
+document.addEventListener("keydown",(e)=>{
+
     keys[e.key] = true;
+
 });
 
-document.addEventListener("keyup", function (e) {
+
+document.addEventListener("keyup",(e)=>{
+
     keys[e.key] = false;
+
 });
 
-// Update
-function update() {
 
-    if (!gameRunning) return;
+// ======================================
+// MOBILE CONTROL VARIABLES
+// ======================================
 
-    if (keys["ArrowLeft"])
+let moveLeft = false;
+let moveRight = false;
+
+
+// ======================================
+// ENEMY CARS
+// ======================================
+
+let enemies = [
+
+    {
+        x:200,
+        y:-200,
+        width:70,
+        height:120,
+        speed:6
+    },
+
+    {
+        x:500,
+        y:-600,
+        width:70,
+        height:120,
+        speed:6
+    }
+
+];
+
+
+// ======================================
+// COINS
+// ======================================
+
+let coins = [];
+
+for(let i=0;i<5;i++){
+
+    coins.push({
+
+        x:150 + Math.random()*450,
+        y:-i*250,
+
+        width:35,
+        height:35
+
+    });
+
+}
+
+
+// ======================================
+// TREES
+// ======================================
+
+let trees=[];
+
+
+for(let i=0;i<15;i++){
+
+    trees.push({
+
+        leftX:20,
+        rightX:720,
+        y:i*80
+
+    });
+
+}
+// ======================================
+// UPDATE FUNCTIONS - PART 2
+// ======================================
+
+
+// Player Movement
+function updatePlayer(){
+
+    if(keys["ArrowLeft"] || moveLeft){
+
         player.x -= player.speed;
 
-    if (keys["ArrowRight"])
+    }
+
+
+    if(keys["ArrowRight"] || moveRight){
+
         player.x += player.speed;
 
-    if (player.x < 90)
-        player.x = 90;
+    }
 
-    if (player.x > 640)
-        player.x = 640;
 
-    // Road movement
-    roadLineY += 6;
+    // Keep car on road
 
-    if (roadLineY > 60)
-        roadLineY = 0;
+    if(player.x < 110){
 
-    // Enemy movement
-    enemies.forEach(enemy => {
+        player.x = 110;
+
+    }
+
+
+    if(player.x > 620){
+
+        player.x = 620;
+
+    }
+
+}
+
+
+
+// Moving Road
+function updateRoad(){
+
+    roadOffset += roadSpeed;
+
+
+    if(roadOffset >= 60){
+
+        roadOffset = 0;
+
+    }
+
+}
+
+
+
+// Moving Trees
+function updateTrees(){
+
+    trees.forEach(tree=>{
+
+
+        tree.y += roadSpeed;
+
+
+        if(tree.y > canvas.height){
+
+            tree.y = -80;
+
+        }
+
+
+    });
+
+}
+
+
+
+// Enemy Cars
+function updateEnemies(){
+
+    enemies.forEach(enemy=>{
+
 
         enemy.y += enemy.speed;
 
-        if (enemy.y > canvas.height) {
-            enemy.y = -200;
-            enemy.x = Math.random() * 500 + 100;
-            score++;
+
+
+        if(enemy.y > canvas.height + 150){
+
+
+            enemy.y = -300;
+
+            enemy.x = 120 + Math.random()*500;
+
+
+            score += 10;
+
+
         }
 
-        // Collision
-        if (
-            player.x < enemy.x + enemy.width &&
-            player.x + player.width > enemy.x &&
-            player.y < enemy.y + enemy.height &&
-            player.y + player.height > enemy.y
-        ) {
-            gameRunning = false;
 
-            setTimeout(() => {
-                alert("Game Over! Score: " + score);
-                location.reload();
-            }, 100);
-        }
     });
+
+
 }
 
-// Draw
-function draw() {
+
+
+// Coins Movement + Collection
+function updateCoins(){
+
+
+    coins.forEach(coin=>{
+
+
+        coin.y += roadSpeed;
+
+
+
+        if(coin.y > canvas.height + 50){
+
+
+            coin.y = -300;
+
+            coin.x = 120 + Math.random()*500;
+
+
+        }
+
+
+
+        // collect coin
+
+        if(
+
+            player.x < coin.x + coin.width &&
+
+            player.x + player.width > coin.x &&
+
+            player.y < coin.y + coin.height &&
+
+            player.y + player.height > coin.y
+
+        ){
+
+
+            coinsCollected++;
+
+            score += 50;
+
+
+            coin.y = -300;
+
+            coin.x = 120 + Math.random()*500;
+
+
+        }
+
+
+    });
+
+
+}
+
+
+
+
+// Collision Check
+function checkCollision(){
+
+
+    enemies.forEach(enemy=>{
+
+
+        if(
+
+            player.x < enemy.x + enemy.width &&
+
+            player.x + player.width > enemy.x &&
+
+            player.y < enemy.y + enemy.height &&
+
+            player.y + player.height > enemy.y
+
+
+        ){
+
+
+            lives--;
+
+
+            enemy.y = -300;
+
+
+
+            player.x = 365;
+
+
+            if(lives <= 0){
+
+                gameOver = true;
+
+            }
+
+
+        }
+
+
+    });
+
+
+}
+
+
+
+
+
+// Main Update
+function update(){
+
+
+    if(gameOver){
+
+        return;
+
+    }
+
+
+    updatePlayer();
+
+    updateRoad();
+
+    updateTrees();
+
+    updateEnemies();
+
+    updateCoins();
+
+    checkCollision();
+
+
+}
+// ======================================
+// DRAWING FUNCTIONS - PART 3
+// ======================================
+
+
+// Draw Road + Grass
+function drawBackground(){
+
+
+    // Grass sides
+    if(grassImg.complete){
+
+        ctx.drawImage(grassImg,0,0,100,canvas.height);
+
+        ctx.drawImage(
+            grassImg,
+            700,
+            0,
+            100,
+            canvas.height
+        );
+
+    }
+    else{
+
+        ctx.fillStyle="green";
+
+        ctx.fillRect(0,0,100,canvas.height);
+
+        ctx.fillRect(700,0,100,canvas.height);
+
+    }
+
+
 
     // Road
-    ctx.fillStyle = "#555";
-    ctx.fillRect(0, 0, 800, 600);
 
-    // Borders
-    ctx.fillStyle = "yellow";
-    ctx.fillRect(80, 0, 5, 600);
-    ctx.fillRect(715, 0, 5, 600);
+    ctx.fillStyle="#444";
 
-    // Road lines
-    ctx.fillStyle = "white";
+    ctx.fillRect(
+        100,
+        0,
+        600,
+        canvas.height
+    );
 
-    for (let i = -60; i < 600; i += 60) {
-        ctx.fillRect(395, i + roadLineY, 10, 30);
-    }
 
-    // Player
-    if (carImage.complete && carImage.naturalWidth > 0) {
-        ctx.drawImage(
-            carImage,
-            player.x,
-            player.y,
-            player.width,
-            player.height
-        );
-    } else {
-        ctx.fillStyle = "red";
+
+    // Road border
+
+    ctx.fillStyle="yellow";
+
+    ctx.fillRect(100,0,5,canvas.height);
+
+    ctx.fillRect(695,0,5,canvas.height);
+
+
+}
+
+
+
+// Moving lane lines
+
+function drawRoadLines(){
+
+
+    ctx.fillStyle="white";
+
+
+    for(let y=-60;y<canvas.height+60;y+=60){
+
+
         ctx.fillRect(
-            player.x,
-            player.y,
-            player.width,
-            player.height
+
+            295,
+
+            y + roadOffset,
+
+            10,
+
+            35
+
         );
+
+
+        ctx.fillRect(
+
+            495,
+
+            y + roadOffset,
+
+            10,
+
+            35
+
+        );
+
+
     }
 
-    // Enemies
-    enemies.forEach(enemy => {
 
-        if (enemyImage.complete && enemyImage.naturalWidth > 0) {
+}
+
+
+
+// Draw Trees
+
+function drawTrees(){
+
+
+    trees.forEach(tree=>{
+
+
+        if(treeImg.complete){
+
+
             ctx.drawImage(
-                enemyImage,
-                enemy.x,
-                enemy.y,
-                enemy.width,
-                enemy.height
+
+                treeImg,
+
+                tree.leftX,
+
+                tree.y,
+
+                60,
+
+                60
+
             );
-        } else {
-            ctx.fillStyle = "blue";
-            ctx.fillRect(
-                enemy.x,
-                enemy.y,
-                enemy.width,
-                enemy.height
+
+
+            ctx.drawImage(
+
+                treeImg,
+
+                tree.rightX,
+
+                tree.y,
+
+                60,
+
+                60
+
             );
+
+
         }
+
 
     });
 
-    // Score
-    ctx.fillStyle = "white";
-    ctx.font = "30px Arial";
-    ctx.fillText("Score: " + score, 20, 40);
+
 }
 
-// Game loop
-function gameLoop() {
-    if (gameRunning) {
+
+
+
+// Draw Coins
+
+function drawCoins(){
+
+
+    coins.forEach(coin=>{
+
+
+        if(coinImg.complete){
+
+
+            ctx.drawImage(
+
+                coinImg,
+
+                coin.x,
+
+                coin.y,
+
+                coin.width,
+
+                coin.height
+
+            );
+
+
+        }
+
+
+    });
+
+
+}
+
+
+
+
+// Draw Enemy Cars
+
+function drawEnemies(){
+
+
+    enemies.forEach(enemy=>{
+
+
+        if(enemyImg.complete){
+
+
+            ctx.drawImage(
+
+                enemyImg,
+
+                enemy.x,
+
+                enemy.y,
+
+                enemy.width,
+
+                enemy.height
+
+            );
+
+
+        }
+
+
+    });
+
+
+}
+
+
+
+
+
+// Draw Player Car
+
+function drawPlayer(){
+
+
+    if(playerImg.complete){
+
+
+        ctx.drawImage(
+
+            playerImg,
+
+            player.x,
+
+            player.y,
+
+            player.width,
+
+            player.height
+
+        );
+
+
+    }
+
+
+}
+
+
+
+
+
+// HUD
+
+function drawHUD(){
+
+
+    ctx.fillStyle="rgba(0,0,0,0.6)";
+
+    ctx.fillRect(
+        10,
+        10,
+        260,
+        120
+    );
+
+
+
+    ctx.fillStyle="white";
+
+    ctx.font="bold 24px Arial";
+
+    ctx.fillText(
+
+        "🏆 Score : " + score,
+
+        20,
+        40
+
+    );
+
+
+
+    ctx.fillStyle="gold";
+
+    ctx.fillText(
+
+        "🪙 Coins : " + coinsCollected,
+
+        20,
+        75
+
+    );
+
+
+
+    ctx.fillStyle="red";
+
+    ctx.font="bold 28px Arial";
+
+
+    ctx.fillText(
+
+        "❤️".repeat(lives),
+
+        20,
+        110
+
+    );
+
+
+}
+// ======================================
+// GAME LOOP + MOBILE + RESTART - PART 4
+// ======================================
+
+
+// Draw Everything
+
+function draw(){
+
+    drawBackground();
+
+    drawRoadLines();
+
+    drawTrees();
+
+    drawCoins();
+
+    drawEnemies();
+
+    drawPlayer();
+
+    drawHUD();
+
+}
+
+
+
+// Game Over Screen
+
+function drawGameOver(){
+
+
+    ctx.fillStyle="rgba(0,0,0,0.7)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+
+    ctx.fillStyle="white";
+
+    ctx.textAlign="center";
+
+
+    ctx.font="50px Arial";
+
+    ctx.fillText(
+        "GAME OVER",
+        400,
+        250
+    );
+
+
+    ctx.font="28px Arial";
+
+    ctx.fillText(
+        "Score : " + score,
+        400,
+        320
+    );
+
+
+    ctx.fillText(
+        "Press SPACE to Restart",
+        400,
+        380
+    );
+
+
+    ctx.textAlign="left";
+
+}
+
+
+
+// Restart Game
+
+function restartGame(){
+
+
+    score = 0;
+
+    coinsCollected = 0;
+
+    lives = 3;
+
+    roadSpeed = 6;
+
+    gameOver = false;
+
+
+
+    player.x = 365;
+
+    player.y = 450;
+
+
+
+    enemies.forEach((enemy,index)=>{
+
+
+        enemy.y = -200 - index*300;
+
+        enemy.x = 120 + Math.random()*500;
+
+
+    });
+
+
+
+}
+
+
+
+
+// Keyboard Restart
+
+document.addEventListener("keydown",(e)=>{
+
+
+    if(gameOver && e.code==="Space"){
+
+        restartGame();
+
+    }
+
+
+});
+
+
+
+
+// Mobile Buttons
+
+const leftBtn = document.getElementById("leftBtn");
+const rightBtn = document.getElementById("rightBtn");
+const brakeBtn = document.getElementById("brakeBtn");
+
+
+
+if(leftBtn){
+
+
+    leftBtn.addEventListener("touchstart",()=>{
+
+        moveLeft=true;
+
+    });
+
+
+    leftBtn.addEventListener("touchend",()=>{
+
+        moveLeft=false;
+
+    });
+
+
+}
+
+
+
+if(rightBtn){
+
+
+    rightBtn.addEventListener("touchstart",()=>{
+
+        moveRight=true;
+
+    });
+
+
+    rightBtn.addEventListener("touchend",()=>{
+
+        moveRight=false;
+
+    });
+
+
+}
+
+
+
+if(brakeBtn){
+
+
+    brakeBtn.addEventListener("touchstart",()=>{
+
+        roadSpeed=3;
+
+    });
+
+
+    brakeBtn.addEventListener("touchend",()=>{
+
+        roadSpeed=6;
+
+    });
+
+
+}
+
+
+
+
+
+// Main Game Loop
+
+function gameLoop(){
+
+
+    if(!gameOver){
+
+
         update();
+
         draw();
-        requestAnimationFrame(gameLoop);
+
+
     }
+    else{
+
+
+        draw();
+
+        drawGameOver();
+
+
+    }
+
+
+
+    requestAnimationFrame(gameLoop);
+
+
 }
 
-// Buttons
-const startBtn = document.getElementById("startBtn");
-const endBtn = document.getElementById("endBtn");
 
-startBtn.addEventListener("click", function () {
-    if (!gameRunning) {
-        gameRunning = true;
-        gameLoop();
-    }
-});
 
-endBtn.addEventListener("click", function () {
-    gameRunning = false;
-});
+
+
+// Start Game
+
+gameLoop();
